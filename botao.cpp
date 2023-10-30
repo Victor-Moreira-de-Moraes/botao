@@ -1,5 +1,6 @@
 const int botaoPin = 2;     // Pino do botão
 const int ledPin = 13;      // Pino do LED embutido no Arduino
+const int led1 = 12;     // Pino do LED piscando
 
 unsigned long tempoInicial = 0;   // Variável para armazenar o tempo inicial
 unsigned long tempoEspera = 10000; // Tempo de espera em milissegundos (10 segundos)
@@ -12,9 +13,20 @@ boolean botaoAnterior = LOW;        // Armazena o estado anterior do botão
 boolean botaoEstavel = LOW;         // Estado estável do botão
 
 void setup() {
-  pinMode(botaoPin, INPUT);   // Configura o pino do botão como entrada
-  pinMode(ledPin, OUTPUT);    // Configura o pino do LED embutido como saída
-  digitalWrite(ledPin, LOW); // Desliga o LED inicialmente
+  pinMode(botaoPin, INPUT);    // Configura o pino do botão como entrada
+  pinMode(ledPin, OUTPUT);     // Configura o pino do LED embutido como saída
+  digitalWrite(ledPin, LOW);   // Desliga o LED inicialmente
+  pinMode(led1, OUTPUT);       // Configura o pino do LED1 piscante como saída
+  
+  // Inicializa a comunicação com o monitor serial
+  Serial.begin(9600);
+}
+
+void ledpisca(int pin,int duration) {
+  digitalWrite(pin, HIGH);  // Liga o LED
+  delay(duration);  // Aguarda a duração especificada
+  digitalWrite(pin, LOW);   // Desliga o LED
+  delay(duration);  // Aguarda a duração especificada novamente
 }
 
 void loop() {
@@ -47,10 +59,15 @@ void loop() {
   if (modoProtegido && millis() - tempoInicial >= tempoEspera) {
     modoProtegido = false;
     digitalWrite(ledPin, LOW);
+         
+    Serial.print("Botao pressionado por ");
+    Serial.print(tempoPressionado);
+    Serial.println(" milissegundos.");
   }
 
   // Armazena o estado atual do botão para o próximo ciclo
   botaoAnterior = botaoAtual;
 
   // Outras tarefas podem ser executadas aqui enquanto aguarda o tempo passar
+  ledpisca(led1, 1000);  // Piscar o primeiro LED a cada segundo
 }
